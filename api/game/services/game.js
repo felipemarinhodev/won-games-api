@@ -5,6 +5,8 @@
  * to customize this service
  */
 const axios = require('axios')
+const slugify = require('slugify')
+
 const BASE_URL = 'https://www.gog.com/'
 
 async function getGameInfo(slug) {
@@ -26,6 +28,16 @@ module.exports = {
   populate: async (params) => {
     const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
     const { data: { products }} = await axios.get(gogApiUrl)
-    console.log(await getGameInfo(products[0].slug));
+    console.log(products[0]);
+
+    const {publisher} = products[0]
+
+    await strapi.services.publiser.create(
+      {
+        name: publisher,
+        slug: slugify(publisher).toLowerCase()
+      }
+    )
+
   }
 };
