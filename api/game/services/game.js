@@ -30,7 +30,7 @@ module.exports = {
     const { data: { products }} = await axios.get(gogApiUrl)
     console.log(products[0]);
 
-    const {publisher} = products[0]
+    const {publisher, developer} = products[0]
 
     await strapi.services.publiser.create(
       {
@@ -39,5 +39,11 @@ module.exports = {
       }
     )
 
+    await strapi.services.developer.create(
+      {
+        name: developer,
+        slug: slugify(developer).toLowerCase()
+      }
+    )
   }
 };
