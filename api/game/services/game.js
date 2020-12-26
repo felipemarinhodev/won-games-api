@@ -24,26 +24,34 @@ async function getGameInfo(slug) {
   }
 }
 
+async function getByName(name, entityName) {
+  const item = await strapi.services[entityName].find({ name })
+  return item.length ? item[0] : null;
+}
+
+async function create(name, entityName) {
+  const item = await getByName(name, entityName)
+  if (!item) {
+    return await strapi.services[entityName].create(
+      {
+        name,
+        slug: slugify(name, { lower: true })
+      }
+    )
+  }
+
+  console.info(`Na entidade: ${entityName} já existe o(a): ${name} `);
+}
+
 module.exports = {
   populate: async (params) => {
     const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
     const { data: { products }} = await axios.get(gogApiUrl)
-    console.log(products[0]);
+    // console.log(products[0]);
 
-    const {publisher, developer} = products[0]
+    const {publisher, developer} = products[1]
 
-    await strapi.services.publiser.create(
-      {
-        name: publisher,
-        slug: slugify(publisher).toLowerCase()
-      }
-    )
-
-    await strapi.services.developer.create(
-      {
-        name: developer,
-        slug: slugify(developer).toLowerCase()
-      }
-    )
+    await create(publisher, 'publiser')
+    await create(developer, 'developer')
   }
 };
