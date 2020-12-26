@@ -1,8 +1,9 @@
 {
   "kind": "collectionType",
-  "collectionName": "publisers",
+  "collectionName": "publishers",
   "info": {
-    "name": "publiser"
+    "name": "publisher",
+    "description": ""
   },
   "options": {
     "increments": true,
@@ -21,8 +22,8 @@
       "required": true
     },
     "games": {
-      "via": "publiser",
-      "collection": "game"
+      "collection": "game",
+      "via": "publisher"
     }
   }
 }

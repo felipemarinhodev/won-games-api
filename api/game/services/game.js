@@ -51,7 +51,7 @@ module.exports = {
 
     const {publisher, developer} = products[1]
 
-    await create(publisher, 'publiser')
+    await create(publisher, 'publisher')
     await create(developer, 'developer')
   }
 };
