@@ -91,17 +91,44 @@ async function createGames(products) {
           publisher: await getByName(product.publisher, "publisher"), ...(await getGameInfo(product.slug)),
         });
 
+        await setImage({ image: product.image, game });
+
         return game;
       }
     })
   )
 }
 
+async function setImage({ image, game, field = "cover" }) {
+  const url = `https:${image}_bg_crop_1680x655.jpg`;
+  const { data } = await axios.get(url, { responseType: "arraybuffer" });
+  const buffer = Buffer.from(data, "base64");
+
+  const FormData = require("form-data");
+  const formData = new FormData();
+
+  formData.append("refId", game.id);
+  formData.append("ref", "game");
+  formData.append("field", field);
+  formData.append("files", buffer, { filename: `${game.slug}.jpg` });
+
+  console.info(`Uploading ${field} image: ${game.slug}.jpg`);
+
+  await axios({
+    method: "POST",
+    url: `http://${strapi.config.host}:${strapi.config.port}/upload`,
+    data: formData,
+    headers: {
+      "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
+    },
+  });
+}
+
 module.exports = {
   populate: async (params) => {
     const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
     const { data: { products }} = await axios.get(gogApiUrl)
-    const productsPopulate = [products[5], products[6]];
+    const productsPopulate = [products[7], products[8]];
     await createManyToManyData(productsPopulate);
     await createGames(productsPopulate);
   }
