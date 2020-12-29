@@ -39,19 +39,42 @@ async function create(name, entityName) {
       }
     )
   }
+}
 
-  console.info(`Na entidade: ${entityName} já existe o(a): ${name} `);
+async function createManyToManyData(products) {
+  const developers = {};
+  const publishers = {};
+  const categories = {};
+  const platforms = {};
+
+  products.forEach((product) => {
+    const { developer, publisher, genres, supportedOperatingSystems } = product;
+
+    genres &&
+      genres.forEach((item) => {
+        categories[item] = true;
+      });
+    supportedOperatingSystems &&
+      supportedOperatingSystems.forEach((item) => {
+        platforms[item] = true;
+      });
+    developers[developer] = true;
+    publishers[publisher] = true;
+  });
+
+  return Promise.all([
+    ...Object.keys(developers).map((name) => create(name, "developer")),
+    ...Object.keys(publishers).map((name) => create(name, "publisher")),
+    ...Object.keys(categories).map((name) => create(name, "category")),
+    ...Object.keys(platforms).map((name) => create(name, "platform")),
+  ])
 }
 
 module.exports = {
   populate: async (params) => {
     const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
     const { data: { products }} = await axios.get(gogApiUrl)
-    // console.log(products[0]);
+    await createManyToManyData([products[3], products[4]])
 
-    const {publisher, developer} = products[1]
-
-    await create(publisher, 'publisher')
-    await create(developer, 'developer')
   }
 };
