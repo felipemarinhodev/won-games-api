@@ -9,6 +9,10 @@ const slugify = require('slugify')
 
 const BASE_URL = 'https://www.gog.com/'
 
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 async function getGameInfo(slug) {
   const jsdom = require("jsdom");
   const { JSDOM } = jsdom;
@@ -92,6 +96,13 @@ async function createGames(products) {
         });
 
         await setImage({ image: product.image, game });
+        await Promise.all(
+          product.gallery
+            .slice(0, 5)
+            .map(url => setImage({ image: url, game, field: "gallery" }))
+        )
+
+        await timeout(2000);
 
         return game;
       }
@@ -128,7 +139,7 @@ module.exports = {
   populate: async (params) => {
     const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
     const { data: { products }} = await axios.get(gogApiUrl)
-    const productsPopulate = [products[7], products[8]];
+    const productsPopulate = [products[0], products[1]];
     await createManyToManyData(productsPopulate);
     await createGames(productsPopulate);
   }
