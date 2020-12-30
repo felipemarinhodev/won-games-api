@@ -6,6 +6,7 @@
  */
 const axios = require('axios')
 const slugify = require('slugify')
+const qs = require('querystring')
 
 const BASE_URL = 'https://www.gog.com/'
 
@@ -150,7 +151,7 @@ async function setImage({ image, game, field = "cover" }) {
 module.exports = {
   populate: async (params) => {
     try {
-      const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&page=1&sort=popularity`
+      const gogApiUrl = `${BASE_URL}games/ajax/filtered?mediaType=game&${qs.stringify(params)}`
       const { data: { products }} = await axios.get(gogApiUrl)
       await createManyToManyData(products);
       await createGames(products);
